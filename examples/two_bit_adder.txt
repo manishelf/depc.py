@@ -1,0 +1,71 @@
+# 00 + 00 = 00
+# 00 + 10 = 10
+# 00 + 01 = 01
+# 00 + 11 = 11
+# 01 + 00 = 01
+# 01 + 01 = 10
+# 01 + 10 = 11
+# 01 + 11 = 00 1C
+# 10 + 00 = 10
+# 10 + 01 = 11
+# 10 + 10 = 00 1C
+# 10 + 11 = 01 1C
+# 11 + 00 = 11
+# 11 + 01 = 00 1C
+# 11 + 10 = 01 1C
+# 11 + 11 = 10 1C
+
+
+# 11 + 11 = 10 1C 
+DEFINE cin ZERO
+DEFINE a1 ONE
+DEFINE a0 ONE
+DEFINE b1 ONE
+DEFINE b0 ONE
+
+# get s1
+PUSH a0 
+PUSH b0
+AND
+PUSH a0
+PUSH b0
+XOR
+PUSH cin 
+AND
+OR
+PUSH a1
+PUSH b1
+XOR
+XOR
+
+# get s0
+PUSH a0
+PUSH b0
+XOR
+PUSH cin 
+XOR
+
+
+
+# get cout
+PUSH a1
+PUSH b1
+XOR
+PUSH a0
+PUSH b0
+AND
+PUSH a0
+PUSH b0
+XOR
+PUSH cin 
+AND
+OR
+AND
+PUSH a1
+PUSH b1
+AND
+OR
+
+
+
+

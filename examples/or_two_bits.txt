@@ -1,0 +1,16 @@
+# add two bits and push result on to the stack
+PUSH ONE
+PUSH ONE
+OR
+PUSH ONE
+PUSH ZERO
+OR
+PUSH ZERO
+PUSH ONE
+OR
+PUSH ZERO
+PUSH ZERO
+OR
+
+# out - [1, 1, 1, 0] in twos complement
+# out - [True, True, True, False] in logical 

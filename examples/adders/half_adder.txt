@@ -1,0 +1,12 @@
+# one bit half adder
+
+# get the sum
+PUSH a0
+PUSH b0
+XOR
+
+# get the carry
+PUSH a0
+PUSH b0
+AND
+

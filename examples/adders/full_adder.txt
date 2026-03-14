@@ -1,0 +1,24 @@
+# one bit full adder
+
+# DEFINE a0 ZERO
+# DEFINE b0 ONE
+# DEFINE c0 ONE
+
+# get sum
+PUSH a0
+PUSH b0
+XOR
+PUSH cin
+XOR
+
+# get carry
+PUSH a0
+PUSH b0
+XOR
+PUSH cin
+AND
+PUSH a0
+PUSH b0
+AND
+OR
+
