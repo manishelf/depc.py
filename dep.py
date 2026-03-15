@@ -72,7 +72,6 @@ class PreProcessor:
             if len(self.file_stack) == 0:
                 raise StopIteration
 
-            #line = self.file_stack[len(self.file_stack)-1].readline()
             line = self.file_stack[-1].readline()
             if line == "": #EOF
                 self.file_stack.pop()
@@ -86,7 +85,7 @@ class PreProcessor:
             if len(command) > 1:
                 operand = command[1]
 
-            if operand in self.macros:
+            while operand in self.macros:
                 operand = self.macros[operand]
 
             if operation == "INCLUDE":
@@ -114,6 +113,7 @@ class Processor:
     def __init__(self, pre_processor):
         self.out_stack = [];
         self.pre_processor = pre_processor;
+        self.registers = dict()
 
     def literal_to_value(self, literal: str) -> int:
         if literal == "ONE":
@@ -121,7 +121,23 @@ class Processor:
         elif literal == "ZERO":
             return 0
         else:
+            if literal in self.registers:
+                return self.literal_to_value(self.registers[literal])
+            else:
+                print(self.out_stack)
+                print("Not implemented lit", literal)
+                raise NotImplementedError
+
+    def value_to_literal(self, value) -> int:
+        if value == 1 or value == True:
+            return "ONE"
+        elif value == 0 or value == False:
+            return "ZERO"
+        else:
+            print(self.out_stack)
+            print("Not implemented val", value)
             raise NotImplementedError
+
 
     def out(self):
         for command in self.pre_processor:
@@ -133,6 +149,10 @@ class Processor:
                 self.out_stack.pop()
             elif operation == "PEEK":
                 self.out_stack.append(self.out_stack[-1])
+            elif operation == "STORE":
+                top = self.out_stack.pop()
+                alias = operand
+                self.registers[alias] = self.value_to_literal(top)
             elif operation == "AND":
                 x = self.out_stack.pop()
                 y = self.out_stack.pop()

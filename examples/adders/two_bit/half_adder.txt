@@ -1,0 +1,32 @@
+DEFINE x1 ZERO
+DEFINE x0 ONE
+DEFINE y1 ONE
+DEFINE y0 ZERO
+
+# sum x0 y0
+DEFINE a0 x0
+DEFINE b0 y0
+INCLUDE ../one_bit/half_adder.txt
+# [s0 c0]
+STORE c0
+
+# sum x1 y1
+DEFINE a0 x1 
+DEFINE b0 y1 
+INCLUDE ../one_bit/half_adder.txt
+# [s0 s1_t cout_a]
+STORE cout_a
+STORE s1_t
+# [s0]
+
+DEFINE a0 c0
+DEFINE b0 s1_t
+INCLUDE ../one_bit/half_adder.txt
+# [s0 s1 cout_b]
+
+PUSH cout_a
+OR
+# [s0 s1 cout]
+
+# 01 + 10 = [1, 1, 0c]
+

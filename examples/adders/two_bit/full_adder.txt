@@ -16,12 +16,19 @@
 # 11 + 11 = 10 1C
 
 
-# 11 + 11 = 10 1C 
-DEFINE cin ZERO
-DEFINE a1 ONE
-DEFINE a0 ONE
-DEFINE b1 ONE
-DEFINE b0 ONE
+# DEFINE cin ZERO
+# DEFINE a1 ONE
+# DEFINE a0 ONE
+# DEFINE b1 ONE
+# DEFINE b0 ONE
+
+# get s0
+PUSH a0
+PUSH b0
+XOR
+PUSH cin 
+XOR
+# [s0]
 
 # get s1
 PUSH a0 
@@ -37,15 +44,7 @@ PUSH a1
 PUSH b1
 XOR
 XOR
-
-# get s0
-PUSH a0
-PUSH b0
-XOR
-PUSH cin 
-XOR
-
-
+# [s0, s1]
 
 # get cout
 PUSH a1
@@ -65,7 +64,9 @@ PUSH a1
 PUSH b1
 AND
 OR
+# [s0, s1, c0] little endian rep as lsb comes at lower address
 
+# 11 + 11 = [0, 1, 1C] 
 
 
 
