@@ -1,25 +1,66 @@
 import io
+import copy
 from pathlib import Path
 
 bitwise = False
 
+def NOT(x):
+    if type(x) == type([]):
+        result = [NOT(p) for p in x]
+        return result
+    if bitwise:
+        return ~x 
+    else: 
+        return int (not x) 
+
 def AND(x, y):
+    if type(x) == type([]):
+        x = copy.deepcopy(x)
+        y = copy.deepcopy(y)
+        result = []
+        if(len(x) == len(y)):
+            result = [AND(p, q) for p, q in zip(x, y)] # wtf is this syntax
+            result.reverse
+            return result
+        else:
+            raise NotImplementedError
     if bitwise:
         return x & y
     else: 
         return int (x and y)
 
 def OR(x, y):
+    if type(x) == type([]):
+        result = []
+        if(len(x) == len(y)):
+            x = copy.deepcopy(x)
+            y = copy.deepcopy(y)
+
+            """ #this will give simple bit wise or which is not generally desiarable
+            while(len(x) > 0 and len(y) > 0):
+                p = x.pop()
+                q = y.pop()
+                result.append(OR(p, q))
+            result.reverse()
+            """
+            # this will give binary addition 
+            carry = 0
+            while(len(x) > 0 and len(y) > 0):
+                p = x.pop()
+                q = y.pop()
+                xor_pq = OR(AND(p, NOT(q)), AND(NOT(p), q))
+                s0 = OR(AND(xor_pq, NOT(carry)), AND(NOT(xor_pq), carry))
+                result.append(s0)
+                carry = OR(AND(p, q), AND(carry, xor_pq))
+            result.append(carry)
+            result.reverse()
+            return result
+        else:
+            raise NotImplementedError
     if bitwise:
-        return x | y
+        return x | y # binary addition
     else: 
         return int (x or y)
-
-def NOT(x):
-    if bitwise:
-        return ~x 
-    else: 
-        return int (not x) 
 
 def NAND(x, y):
     return NOT(AND(x, y))
@@ -114,8 +155,10 @@ class Processor:
         self.out_stack = [];
         self.pre_processor = pre_processor;
         self.registers = dict()
+        self.sequence_stack = []
+        self.sequence_item_counter_stack = []
 
-    def literal_to_value(self, literal: str) -> int:
+    def literal_to_value(self, literal: str):
         if literal == "ONE":
             return 1
         elif literal == "ZERO":
@@ -123,16 +166,28 @@ class Processor:
         else:
             if literal in self.registers:
                 return self.literal_to_value(self.registers[literal])
+            elif literal+"_0" in self.registers:
+                sequence = []
+                index = 0
+                while literal+"_"+str(index) in self.registers:
+                    sequence.append(self.literal_to_value(literal+"_"+str(index)))
+                    index+=1
+                return sequence
             else:
                 print(self.out_stack)
                 print("Not implemented lit", literal)
                 raise NotImplementedError
 
-    def value_to_literal(self, value) -> int:
+    def value_to_literal(self, value) -> str:
         if value == 1 or value == True:
             return "ONE"
         elif value == 0 or value == False:
             return "ZERO"
+        elif type(value) == type([]):
+            sequence_to_literals = []
+            for item in value:
+                sequence_to_literals.append(self.value_to_literal(item))
+            return str(sequence_to_literals)
         else:
             print(self.out_stack)
             print("Not implemented val", value)
@@ -152,7 +207,11 @@ class Processor:
             elif operation == "STORE":
                 top = self.out_stack.pop()
                 alias = operand
-                self.registers[alias] = self.value_to_literal(top)
+                if type(top) == type([]):
+                    for i, val in enumerate(top):
+                        self.registers[alias+"_"+str(i)] = self.value_to_literal(val)
+                else:
+                    self.registers[alias] = self.value_to_literal(top)
             elif operation == "AND":
                 x = self.out_stack.pop()
                 y = self.out_stack.pop()
@@ -179,6 +238,27 @@ class Processor:
                 x = self.out_stack.pop()
                 y = self.out_stack.pop()
                 self.out_stack.append(XNOR(x, y))
+            elif operation == "SEQUENCE":
+               # If there should be name spaces within the sequence?
+               # if len(self.sequence_stack) > 0:
+               #     prefix = "::".join(self.sequence_stack)
+               #     self.sequence_stack.append(prefix+"::"+operand)
+               # else:
+               #     self.sequence_stack.append(operand)
+                self.sequence_stack.append(operand)
+                self.sequence_item_counter_stack.append(0)
+            elif operation == "SEQUENCE_END":
+                self.sequence_stack.pop()
+                self.sequence_item_counter_stack.pop()
+
+            if len(self.sequence_stack) > 0:
+               if(len(self.out_stack) > 0):
+                   top = self.out_stack.pop() 
+                   sequence_name = self.sequence_stack[-1]
+                   item_index = self.sequence_item_counter_stack[-1]
+                   item_name = sequence_name + "_" + str(item_index) 
+                   self.sequence_item_counter_stack[-1] = item_index+1
+                   self.registers[item_name] = self.value_to_literal(top)
 
         return self.out_stack
 

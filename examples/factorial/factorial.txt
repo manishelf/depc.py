@@ -1,0 +1,47 @@
+
+# factorial [0 0] -> [0 1]
+# factorial [0 1] -> [0 1]
+# factorial [1 0] -> [1 0]
+# factorial [1 1] -> [1 1 0]
+# factorial [1 0 0] -> [0 1 1 0 0 0]
+
+
+# n * (n-1)
+# 11 * (11 - 01) 
+# 11 * 10
+# 11 + 11
+# 10 1c  -> 6
+
+
+# get n-1
+# twos complement
+
+
+SEQUENCE L1
+PUSH ONE
+PUSH ZERO
+PUSH ZERO
+PUSH ONE
+SEQUENCE_END
+# [1, 0, 0, 1]
+
+SEQUENCE L2
+PUSH ONE
+PUSH ONE
+PUSH ONE
+PUSH ZERO
+SEQUENCE_END
+# [1, 1, 1, 0]
+
+PUSH L1
+PUSH L2
+OR
+#[[1, 0, 1, 1, 1]]
+NOT
+#[[0, 1, 0, 0, 0]]
+
+#COMP2 L1
+
+
+
+

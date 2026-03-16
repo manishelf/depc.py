@@ -16,7 +16,8 @@ GO_TO
 DONE
 
 ## data -
-LIST_END followed by LIST 
+SEQUENCE
+SEQUENCE_END
 
 ## preprocessor - 
 INCLUDE 
