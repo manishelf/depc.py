@@ -1,0 +1,255 @@
+
+# factorial [0 0] -> [0 1]
+# factorial [0 1] -> [0 1]
+# factorial [1 0] -> [1 0]
+# factorial [1 1] -> [1 1 0]
+# factorial [1 0 0] -> [0 1 1 0 0 0]
+
+
+# n * (n-1)
+# 11 * (11 - 01) 
+# 11 * 10
+# 11 + 11
+# 10 1c  -> 6
+
+
+# get n-1
+# twos complement
+
+# factorial of 4 = 4 * 3 * 2 * 1
+
+SEQUENCE FOUR
+PUSH ZERO
+PUSH ZERO
+PUSH ONE
+PUSH ZERO
+PUSH ZERO
+SEQUENCE_END
+
+SEQUENCE ONEX
+PUSH ZERO
+PUSH ZERO
+PUSH ZERO
+PUSH ZERO
+PUSH ONE
+SEQUENCE_END
+
+PUSH FOUR
+PEEK
+
+# get 3
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+# get 2
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+# get 1
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+
+POP # remove extra 1
+
+# add four to four 0 times 4x1
+PUSH FOUR
+#OR
+
+# add four to four 1 times 4x2
+PUSH FOUR 
+OR
+
+# add four to four 2 times 4x3
+PUSH FOUR 
+OR
+
+# add 12 to 12 0 times 12x1
+
+# add 12 to 12 1 times 12x2
+PEEK
+OR
+# skip add 12 to 12 2 times 12x3
+
+# factorial of 4 = 4 * 3 * 2 * 1
+# factorial of 4 = 4 * 3 * 2 
+# factorial of 4 = 4 * 6
+# factorial of 4 = 24 
+
+
+---
+POP
+POP
+POP
+POP
+POP
+---
+
+SEQUENCE FIVE
+PUSH ZERO
+PUSH ZERO
+PUSH ZERO
+PUSH ONE
+PUSH ZERO
+PUSH ONE
+SEQUENCE_END
+
+SEQUENCE ONEX
+PUSH ZERO
+PUSH ZERO
+PUSH ZERO
+PUSH ZERO
+PUSH ZERO
+PUSH ONE
+SEQUENCE_END
+
+PUSH FIVE
+PEEK
+
+# get 4
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+# get 3
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+# get 2
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+# get 1
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+OR
+PEEK
+
+POP # remove extra 1
+
+# add 5 to 5 0 times 5x1
+PUSH FIVE
+#OR
+
+# add 5 to 5 1 times 5x2
+PUSH FIVE
+OR
+
+# add 5 to 5 2 times 5x3
+PUSH FIVE
+OR
+
+# add 5 to 5 3 times 5x4
+PUSH FIVE
+OR
+
+PEEK
+OR
+# 60      111100
+
+#5*4*3*2*1 = 120    1111000
+---
+POP
+POP
+POP
+POP
+POP
+POP
+---
+
+LABEL L01
+PUSH ONE
+IF 
+PUSH ZERO
+PUSH ONE
+PUSH ONE
+IF 
+PUSH ZERO
+PUSH ONE
+PUSH ONE
+IF_END
+IF_END
+
+GOTO L01
+
+PUSH ONE
+ 
+
+DONE
+---
+{
+SEQUENCE SUB1
+REPEAT
+    IF bit == 0
+        bit = 1
+    IF_END
+
+    IF bit == 1
+        bit = 0
+        STOP
+    IF_END
+REPEAT_END
+SEQUENCE_END
+}
+{
+SEQUENCE MUL
+result = 0
+
+REPEAT b
+    result = result + a
+REPEAT_END
+SEQUENCE_END
+}
+{
+result = 1
+
+REPEAT
+    IF n == 1
+        BREAK
+    IF_END
+
+    result = MUL(result, n)
+    n = SUB1(n)
+
+REPEAT_END
+}
+{
+PUSH N
+PUSH ONE
+SET RESULT
+
+REPEAT
+    IF N == 1
+        BREAK
+    IF_END
+
+    MUL RESULT N
+    SUB1 N
+
+REPEAT_END
+}

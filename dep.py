@@ -23,6 +23,8 @@ def AND(x, y):
             result.reverse
             return result
         else:
+            print("x", x)
+            print("y", y)
             raise NotImplementedError
     if bitwise:
         return x & y
@@ -52,10 +54,12 @@ def OR(x, y):
                 s0 = OR(AND(xor_pq, NOT(carry)), AND(NOT(xor_pq), carry))
                 result.append(s0)
                 carry = OR(AND(p, q), AND(carry, xor_pq))
-            result.append(carry)
+            # result.append(carry) # ignore carry in result for now as it adds one addtional bit
             result.reverse()
             return result
         else:
+            print("x", x)
+            print("y", y)
             raise NotImplementedError
     if bitwise:
         return x | y # binary addition
@@ -75,6 +79,22 @@ def XNOR(x, y):
     return NOT(XOR(x, y))
     # return OR(AND(NOT(x), NOT(y)), AND(x, y)) 
 
+
+def TRUTHY(x) -> bool:
+    if type(x) == type(True): 
+        return x
+    elif type(x) == type(1):
+        return x != 0 
+    elif type(x) == type([]):
+        res = False
+        for i in x:
+            if TRUTHY(i):
+                res = True
+                return res
+        return res
+    else:
+        print(x)
+        raise NotImplementedErrorm
 
 
 def read_file(path: str) -> str:
@@ -144,19 +164,24 @@ class PreProcessor:
                 value = command[2]
                 self.macros[alias] = value
 
-            if operation == "DONE":
-                raise StopIteration
-
             return (operation, operand)
+
+    def get(self):
+        instr = []
+        for command in self:
+            instr.append(command)
+        return instr
 
 
 class Processor:
     def __init__(self, pre_processor):
         self.out_stack = [];
+        self.instr_stack = []
         self.pre_processor = pre_processor;
         self.registers = dict()
         self.sequence_stack = []
         self.sequence_item_counter_stack = []
+        self.labels = dict()
 
     def literal_to_value(self, literal: str):
         if literal == "ONE":
@@ -195,9 +220,16 @@ class Processor:
 
 
     def out(self):
-        for command in self.pre_processor:
+        
+        self.instr_stack = self.pre_processor.get()
+        pc = 0
+        #for command in self.pre_processor:
+        while pc < len(self.instr_stack):
+
+            command = self.instr_stack[pc]
             operation = command[0].upper()
             operand = command[1]
+
             if operation == "PUSH":
                 self.out_stack.append(self.literal_to_value(operand)) 
             elif operation == "POP":
@@ -238,6 +270,37 @@ class Processor:
                 x = self.out_stack.pop()
                 y = self.out_stack.pop()
                 self.out_stack.append(XNOR(x, y))
+
+            # conditionals 
+            elif operation == "IF":
+                top = self.out_stack.pop()
+                self.if_condition_val = top
+                if not TRUTHY(top):
+                    # skip until IF_END
+                    depth = 1
+                    while depth > 0:
+                        pc += 1
+                        op = self.instr_stack[pc][0]
+                        if op == "IF":
+                            depth += 1
+                        elif op == "IF_END":
+                            depth -= 1
+                    continue
+
+            elif operation == "IF_END":
+                """Do Nothing"""
+            elif operation == "LABEL":
+                alias = operand
+                self.labels[alias] = pc 
+            elif operation == "GOTO":
+                label = operand
+                instr = self.labels[label]
+                pc = instr
+                continue
+            elif operation == "DONE":
+                break
+
+            # Data structures
             elif operation == "SEQUENCE":
                # If there should be name spaces within the sequence?
                # if len(self.sequence_stack) > 0:
@@ -251,6 +314,10 @@ class Processor:
                 self.sequence_stack.pop()
                 self.sequence_item_counter_stack.pop()
 
+            elif operation == "SHOW":
+                for val in self.out_stack:
+                    print(val)
+         
             if len(self.sequence_stack) > 0:
                if(len(self.out_stack) > 0):
                    top = self.out_stack.pop() 
@@ -259,6 +326,8 @@ class Processor:
                    item_name = sequence_name + "_" + str(item_index) 
                    self.sequence_item_counter_stack[-1] = item_index+1
                    self.registers[item_name] = self.value_to_literal(top)
+
+            pc += 1
 
         return self.out_stack
 

@@ -1,47 +1,152 @@
+# factorial of 5 = 5 * 4 * 3 * 2 * 1 = 120  0 1 1 1 1 0 0 0
+# 6*120= 720 = 0000 0010 1101 0000
 
-# factorial [0 0] -> [0 1]
-# factorial [0 1] -> [0 1]
-# factorial [1 0] -> [1 0]
-# factorial [1 1] -> [1 1 0]
-# factorial [1 0 0] -> [0 1 1 0 0 0]
+# 0 0 0 0 0 1 1 0 
+SEQUENCE SIX
 
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ONE
+  PUSH ONE
+  PUSH ZERO
 
-# n * (n-1)
-# 11 * (11 - 01) 
-# 11 * 10
-# 11 + 11
-# 10 1c  -> 6
-
-
-# get n-1
-# twos complement
-
-
-SEQUENCE L1
-PUSH ONE
-PUSH ZERO
-PUSH ZERO
-PUSH ONE
 SEQUENCE_END
-# [1, 0, 0, 1]
 
-SEQUENCE L2
-PUSH ONE
-PUSH ONE
-PUSH ONE
-PUSH ZERO
+SEQUENCE ONEX
+
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ONE
+
 SEQUENCE_END
-# [1, 1, 1, 0]
 
-PUSH L1
-PUSH L2
-OR
-#[[1, 0, 1, 1, 1]]
+SEQUENCE ZEROX
+
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+
+SEQUENCE_END
+
+PUSH ONEX
 NOT
-#[[0, 1, 0, 0, 0]]
+PUSH ONEX
+OR
+STORE COMP_2_ONEX
 
-#COMP2 L1
+#PUSH FIVE
 
+# # 4
+# PUSH COMP_2_ONEX
+# OR
+# PEEK
+# 
+# #3
+# PUSH COMP_2_ONEX
+# OR
+# PEEK
+# 
+# #2
+# PUSH COMP_2_ONEX
+# OR
+# PEEK
+# 
+# #1
+# PUSH COMP_2_ONEX
+# OR
+# PEEK
+# POP # extra 1
 
+PUSH SIX
+----
+PEEK
+STORE NUM
 
+PUSH NUM
+STORE RESULT
+
+LABEL LOOP1
+
+  STORE N
+
+  PUSH ZEROX
+  STORE ACC
+  
+  # decrement by 1
+  PUSH N
+  PUSH COMP_2_ONEX
+  OR
+  STORE N_MINUS_1
+
+  PUSH N_MINUS_1
+  STORE COUNT
+
+      # add n to n n-1 times
+      LABEL LOOP2
+          
+        PUSH ACC
+        PUSH RESULT 
+        OR
+        STORE ACC
+         
+        # decrement by 1
+        PUSH COUNT 
+        PUSH COMP_2_ONEX
+        OR
+        STORE COUNT
+          
+      PUSH COUNT
+      IF 
+        GOTO LOOP2
+      IF_END
+  
+  PUSH ACC
+  STORE RESULT
+
+  PUSH N_MINUS_1 # next n   
+
+# n-1 > 0 to avoid looping for 1 as that will set result 0
+PUSH N_MINUS_1    
+PUSH COMP_2_ONEX
+OR
+IF 
+  GOTO LOOP1
+IF_END
+
+POP # extra n-1
+PUSH RESULT
+SHOW
+
+---
 

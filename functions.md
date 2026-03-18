@@ -8,11 +8,14 @@ STORE
 AND
 OR
 NOT
+SHOW
 
 ## control -
-IF followed by IF_END
+IF
+IF_END
 condition followed by operation followed by REPEAT
-GO_TO
+LABLE
+GOTO
 DONE
 
 ## data -

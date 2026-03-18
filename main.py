@@ -16,7 +16,9 @@ def main():
     print("--------------")
 
     processor = dep.Processor(pre_processor)
-    print(processor.out())
+    out = processor.out()
+    #for res in out:
+        #print(res)
          
 if __name__ == "__main__":
     main()
