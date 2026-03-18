@@ -65,31 +65,10 @@ PUSH ONEX
 OR
 STORE COMP_2_ONEX
 
-#PUSH FIVE
-
-# # 4
-# PUSH COMP_2_ONEX
-# OR
-# PEEK
-# 
-# #3
-# PUSH COMP_2_ONEX
-# OR
-# PEEK
-# 
-# #2
-# PUSH COMP_2_ONEX
-# OR
-# PEEK
-# 
-# #1
-# PUSH COMP_2_ONEX
-# OR
-# PEEK
-# POP # extra 1
-
+#INPUT
 PUSH SIX
-----
+
+# ----
 PEEK
 STORE NUM
 
@@ -147,6 +126,6 @@ IF_END
 POP # extra n-1
 PUSH RESULT
 SHOW
-
----
+# ---
+# [0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0] = 720
 

@@ -1,0 +1,122 @@
+# print upto sixth fib no
+# 0 1 1 2 3 5 8
+SEQUENCE SIX
+
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ONE
+  PUSH ONE
+  PUSH ZERO
+
+SEQUENCE_END
+
+SEQUENCE ONEX
+
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ONE
+
+SEQUENCE_END
+
+SEQUENCE ZEROX
+
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+  PUSH ZERO
+
+SEQUENCE_END
+
+PUSH ONEX
+NOT
+PUSH ONEX
+OR
+STORE COMP_2_ONEX
+
+#INPUT
+PUSH SIX
+
+# ---
+
+PUSH COMP_2_ONEX
+OR
+STORE N_MINUS_1
+
+PUSH ZEROX
+STORE P
+
+PUSH ONEX
+STORE Q
+
+PUSH ONEX
+
+LABEL LOOP1
+
+  PUSH P
+  PUSH Q
+  OR
+  PEEK
+  STORE P 
+
+  PUSH P
+  PUSH Q
+  OR
+  PEEK
+  STORE Q 
+
+  PUSH N_MINUS_1
+  PUSH COMP_2_ONEX
+  OR
+  STORE N_MINUS_1
+  
+PUSH N_MINUS_1
+IF
+GOTO LOOP1
+IF_END
+
+
+SHOW
+# ---
+
+# BUG : otput shows n*2 numbers due to double PEEK 
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] 1
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] 1
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0] 2
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1] 3
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1] 5
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0] 8
+#|| [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1] 13
+#|| [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1] 21
+#|| [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0] 34
+#|| [0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1] 55
+#|| [0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1] 89
