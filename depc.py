@@ -1,101 +1,8 @@
 import io
 import copy
 from pathlib import Path
-
-bitwise = False
-
-def NOT(x):
-    if type(x) == type([]):
-        result = [NOT(p) for p in x]
-        return result
-    if bitwise:
-        return ~x 
-    else: 
-        return int (not x) 
-
-def AND(x, y):
-    if type(x) == type([]):
-        x = copy.deepcopy(x)
-        y = copy.deepcopy(y)
-        result = []
-        if(len(x) == len(y)):
-            result = [AND(p, q) for p, q in zip(x, y)] # wtf is this syntax
-            result.reverse
-            return result
-        else:
-            print("x", x)
-            print("y", y)
-            raise NotImplementedError
-    if bitwise:
-        return x & y
-    else: 
-        return int (x and y)
-
-def OR(x, y):
-    if type(x) == type([]):
-        result = []
-        if(len(x) == len(y)):
-            x = copy.deepcopy(x)
-            y = copy.deepcopy(y)
-
-            """ #this will give simple bit wise or which is not generally desiarable
-            while(len(x) > 0 and len(y) > 0):
-                p = x.pop()
-                q = y.pop()
-                result.append(OR(p, q))
-            result.reverse()
-            """
-            # this will give binary addition 
-            carry = 0
-            while(len(x) > 0 and len(y) > 0):
-                p = x.pop()
-                q = y.pop()
-                xor_pq = OR(AND(p, NOT(q)), AND(NOT(p), q))
-                s0 = OR(AND(xor_pq, NOT(carry)), AND(NOT(xor_pq), carry))
-                result.append(s0)
-                carry = OR(AND(p, q), AND(carry, xor_pq))
-            # result.append(carry) # ignore carry in result for now as it adds one addtional bit
-            result.reverse()
-            return result
-        else:
-            print("x", x)
-            print("y", y)
-            raise NotImplementedError
-    if bitwise:
-        return x | y # binary addition
-    else: 
-        return int (x or y)
-
-def NAND(x, y):
-    return NOT(AND(x, y))
-
-def NOR(x, y):
-    return NOT(OR(x, y))
-
-def XOR(x, y):
-    return OR(AND(x, NOT(y)), AND(NOT(x), y))
-
-def XNOR(x, y):
-    return NOT(XOR(x, y))
-    # return OR(AND(NOT(x), NOT(y)), AND(x, y)) 
-
-
-def TRUTHY(x) -> bool:
-    if type(x) == type(True): 
-        return x
-    elif type(x) == type(1):
-        return x != 0 
-    elif type(x) == type([]):
-        res = False
-        for i in x:
-            if TRUTHY(i):
-                res = True
-                return res
-        return res
-    else:
-        print(x)
-        raise NotImplementedErrorm
-
+from literals import *
+from operations import *
 
 def read_file(path: str) -> str:
     file = open(path, "r")
@@ -185,9 +92,9 @@ class Processor:
 
     def literal_to_value(self, literal: str):
         if literal == "ONE":
-            return 1
+            return ONE
         elif literal == "ZERO":
-            return 0
+            return ZERO
         else:
             if literal in self.registers:
                 return self.literal_to_value(self.registers[literal])
@@ -198,21 +105,20 @@ class Processor:
                     sequence.append(self.literal_to_value(literal+"_"+str(index)))
                     index+=1
                 return sequence
+            elif is_hex(literal):
+                return hex_to_sequence(literal, SEQUENCE_BASE)
             else:
                 print(self.out_stack)
                 print("Not implemented lit", literal)
                 raise NotImplementedError
 
     def value_to_literal(self, value) -> str:
-        if value == 1 or value == True:
+        if value == ONE or value == 1 or value == True:
             return "ONE"
-        elif value == 0 or value == False:
+        elif value == ZERO or value == 0 or value == False:
             return "ZERO"
         elif type(value) == type([]):
-            sequence_to_literals = []
-            for item in value:
-                sequence_to_literals.append(self.value_to_literal(item))
-            return str(sequence_to_literals)
+            return sequence_to_hex(value, SEQUENCE_BASE) 
         else:
             print(self.out_stack)
             print("Not implemented val", value)
