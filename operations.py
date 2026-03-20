@@ -16,14 +16,9 @@ def AND(x, y):
         y = pad_sequence(y, x)  
 
         result = []
-        if(len(x) == len(y)):
-            result = [AND(p, q) for p, q in zip(x, y)] # wtf is this syntax
-            result.reverse
-            return result
-        else:
-            print("x", x)
-            print("y", y)
-            raise NotImplementedError
+        result = [AND(p, q) for p, q in zip(x, y)] # wtf is this syntax
+        result.reverse
+        return result
 
     if bitwise:
         return x & y
@@ -31,13 +26,14 @@ def AND(x, y):
         return int (x and y)
 
 def OR(x, y):
-
            
     if (type(x) == type([]) or type(y) == type([])) :
         x = pad_sequence(x, y)
         y = pad_sequence(y, x)  
         result = []
-        if(len(x) == len(y)):
+
+        # TODO:the examples should changed to handle this
+        if True or not bitwise:
             # this will give binary addition 
             carry = 0
             while(len(x) > 0 and len(y) > 0):
@@ -49,11 +45,11 @@ def OR(x, y):
                 carry = OR(AND(p, q), AND(carry, xor_pq))
             # result.append(carry) # ignore carry in result for now as it adds one addtional bit
             result.reverse()
-            return result
+
         else:
-            print("x", x)
-            print("y", y)
-            raise NotImplementedError
+            result = [OR(p, q) for p, q in zip(x, y)]
+
+        return result
 
     if bitwise:
         return x | y # binary addition

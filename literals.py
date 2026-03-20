@@ -59,6 +59,12 @@ def sequence_to_hex(seq, base):
     return res[::-1]
 
 def decimal_to_sequence(num, base):
+
+    is_negative = num < 0
+    if(is_negative):
+        print("num", num)
+        raise NotImplementedError
+
     if(num == 0):
         return [0]
 
@@ -69,6 +75,12 @@ def decimal_to_sequence(num, base):
         num = num // base
         res.append(rem)
         units *= 10
+
+    if(is_negative):
+        res.append(1)
+    else:
+        res.append(0)
+
     res.reverse()
     return res
 
@@ -79,6 +91,10 @@ def decimal_to_hex(num):
 def is_hex(num):
     res = False
     num = num.upper()
+    if(num.startswith("-")):
+        print("num", num)
+        raise NotImplementedError
+
     if(type(num) == type("") and len(num) > 0):
         if(num.startswith("0X")):
             for char in num[2:]:
@@ -90,14 +106,17 @@ def is_hex(num):
 def hex_to_sequence(num, base):
     res = []
     inp = (num[2:].upper())[::-1]
+    
+    if(not is_hex(num)):
+        raise ValueError("cannot parse as hex", num)   
+
     for char in inp:
         dec = 0
         if(char.isdigit()):
             dec = int(char)
         elif 'A' <= char <= 'F':
             dec = (ord(char) - 65 + 10)
-        else:
-            raise ValueError("cannot parse as hex", num)
+
         seq = decimal_to_sequence(dec, base)
         seq.reverse()
         while len(seq) % 4 != 0:

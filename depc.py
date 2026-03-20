@@ -119,6 +119,9 @@ class Processor:
             return "ZERO"
         elif type(value) == type([]):
             return sequence_to_hex(value, SEQUENCE_BASE) 
+        elif type(value) == type(1):
+            seq = decimal_to_sequence(value, SEQUENCE_BASE)
+            return sequence_to_hex(seq, SEQUENCE_BASE)
         else:
             print(self.out_stack)
             print("Not implemented val", value)
