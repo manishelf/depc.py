@@ -9,3 +9,6 @@
 [examples/factorial/](https://github.com/manishelf/depc.py/blob/master/examples/factorial/)
 
 [examples/fibonacii/](https://github.com/manishelf/depc.py/blob/master/examples/fibonacii/)
+
+
+inspired by porth https://gitlab.com/tsoding/porth
