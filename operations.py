@@ -26,35 +26,37 @@ def AND(x, y):
         return int (x and y)
 
 def OR(x, y):
-           
     if (type(x) == type([]) or type(y) == type([])) :
         x = pad_sequence(x, y)
-        y = pad_sequence(y, x)  
+        y = pad_sequence(y, x)
         result = []
-
+        
         # TODO:the examples should changed to handle this
         if True or not bitwise:
-            # this will give binary addition 
             carry = 0
-            while(len(x) > 0 and len(y) > 0):
-                p = x.pop()
-                q = y.pop()
-                xor_pq = OR(AND(p, NOT(q)), AND(NOT(p), q))
-                s0 = OR(AND(xor_pq, NOT(carry)), AND(NOT(xor_pq), carry))
-                result.append(s0)
-                carry = OR(AND(p, q), AND(carry, xor_pq))
-            # result.append(carry) # ignore carry in result for now as it adds one addtional bit
+            # process from right LSB (BIG_ENDIAN)
+            for p, q in zip(reversed(x), reversed(y)):
+                if (type(p) == type([]) or type(q) == type([])) :
+                    # recurse into nested lists
+                    result.append(OR(p, q))
+                else:
+                    # full adder at bit level
+                    sum_bit = XOR(XOR(p,q), carry)
+                    carry = OR(AND(p,q),AND(carry,XOR(p,q)))
+                    result.append(sum_bit)
+                    
+                if carry:
+                    result.append(carry)
+                
             result.reverse()
-
         else:
             result = [OR(p, q) for p, q in zip(x, y)]
-
         return result
-
+        
     if bitwise:
-        return x | y # binary addition
-    else: 
-        return int (x or y)
+        return x | y
+    else:
+        return int(x or y)
 
 def NAND(x, y):
     return NOT(AND(x, y))
