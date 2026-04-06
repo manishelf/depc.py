@@ -17,7 +17,7 @@ def AND(x, y):
 
         result = []
         result = [AND(p, q) for p, q in zip(x, y)] # wtf is this syntax
-        result.reverse
+        result.reverse()
         return result
 
     if bitwise:
