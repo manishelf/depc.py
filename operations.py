@@ -63,8 +63,8 @@ def OR(x, y):
                     carry = OR(AND(p,q),AND(carry,XOR(p,q)))
                     result.append(sum_bit)
                     
-            if TRUTHY(carry):
-                result.append(carry)
+            #if TRUTHY(carry):
+            #    result.append(carry)
                 
             result.reverse()
 

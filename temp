@@ -1,0 +1,4 @@
+push ONE
+push ZERO
+OR
+show
