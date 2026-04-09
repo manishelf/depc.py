@@ -107,6 +107,19 @@ class Processor:
         self.conditional_skip_depth = 0
         self.pc = 0
 
+        self.dispatch_table = dict() 
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if callable(attr) and hasattr(attr, "_opcode"):
+                self.dispatch_table[attr._opcode[0]] = attr._opcode[1:]
+        
+    # this is a closure
+    def opcode(name, arity, consumer):
+        def decorator(func):
+            func._opcode = (name, func, arity, consumer)
+            return func
+        return decorator
+
     def literal_to_value(self, literal: str):
         if literal == "ONE" or literal == "one":
             return ONE
@@ -151,6 +164,60 @@ class Processor:
             print("Not implemented val", value)
             raise NotImplementedError
 
+    @opcode("PUSH", 0, False)
+    def PUSH(self, operand, arg):
+        return self.literal_to_value(operand)
+
+    @opcode("POP", 1, True)
+    def POP(self, operand, arg):
+        return None
+
+    @opcode("PEEK", 1, False)
+    def PEEK(self, operand, arg):
+        return arg[0]
+
+    @opcode("STORE", 1, True)
+    def STORE(self, operand, arg):
+        alias = operand
+
+        if isinstance(arg[0], list):
+            for i, val in enumerate(arg[0]):
+                self.registers[alias + "_" +
+                               str(i)] = self.value_to_literal(val)
+        else:
+            self.registers[alias] = self.value_to_literal(arg[0])
+
+        return None
+
+    @opcode("AND", 2, True)
+    def AND(self, operand, arg):
+        return AND(arg[0], arg[1])
+
+    @opcode("OR", 2, True)
+    def OR(self, operand, arg):
+        return OR(arg[0], arg[1])
+
+    @opcode("NOT", 1, True)
+    def NOT(self, operand, arg):
+        return NOT(arg[0])
+
+    @opcode("XOR", 2, True)
+    def XOR(self, operand, arg):
+        return XOR(arg[0], arg[1])
+
+    @opcode("NAND", 2, True)
+    def NAND(self, operand, arg):
+        return NAND(arg[0], arg[1])
+
+    @opcode("NOR", 2, True)
+    def NOR(self, operand, arg):
+        return NOR(arg[0], arg[1])
+
+    @opcode("XNOR", 2, True)
+    def XNOR(self, operand, arg):
+        return XNOR(arg[0], arg[1])
+
+
     def next_instr(self):
         if self.pc == len(self.instr_stack):
             opr = self.pre_processor.__next__()
@@ -165,68 +232,21 @@ class Processor:
         except StopIteration:
             return False
 
-        if operation == "PUSH":
-            self.out_stack.append(self.literal_to_value(operand))
+        entry = self.dispatch_table.get(operation)
+        if entry:
+            (handler, arity, consumer) = entry
+            args = []
+            for i in range(0, arity):
+                if len(self.out_stack) > 0:
+                    if consumer:
+                        val = self.out_stack.pop()
+                    else:
+                        val = self.out_stack[-1]
+                    args.append(val)
 
-        elif operation == "POP":
-            if len(self.out_stack) > 0:
-                self.out_stack.pop()
-
-        elif operation == "PEEK":
-            if len(self.out_stack) > 0:
-                self.out_stack.append(self.out_stack[-1])
-
-        elif operation == "STORE":
-            if len(self.out_stack) > 0:
-                top = self.out_stack.pop()
-                alias = operand
-
-                if isinstance(top, list):
-                    for i, val in enumerate(top):
-                        self.registers[alias + "_" +
-                                       str(i)] = self.value_to_literal(val)
-                else:
-                    self.registers[alias] = self.value_to_literal(top)
-
-        elif operation == "AND":
-            if len(self.out_stack) > 1:
-                x = self.out_stack.pop()
-                y = self.out_stack.pop()
-                self.out_stack.append(AND(x, y))
-
-        elif operation == "OR":
-            if len(self.out_stack) > 1:
-                x = self.out_stack.pop()
-                y = self.out_stack.pop()
-                self.out_stack.append(OR(x, y))
-
-        elif operation == "NOT":
-            if len(self.out_stack) > 0:
-                self.out_stack[-1] = NOT(self.out_stack[-1])
-
-        elif operation == "NAND":
-            if len(self.out_stack) > 1:
-                x = self.out_stack.pop()
-                y = self.out_stack.pop()
-                self.out_stack.append(NAND(x, y))
-
-        elif operation == "NOR":
-            if len(self.out_stack) > 1:
-                x = self.out_stack.pop()
-                y = self.out_stack.pop()
-                self.out_stack.append(NOR(x, y))
-
-        elif operation == "XOR":
-            if len(self.out_stack) > 1:
-                x = self.out_stack.pop()
-                y = self.out_stack.pop()
-                self.out_stack.append(XOR(x, y))
-
-        elif operation == "XNOR":
-            if len(self.out_stack) > 1:
-                x = self.out_stack.pop()
-                y = self.out_stack.pop()
-                self.out_stack.append(XNOR(x, y))
+            result = handler(self, operand, args)
+            if result is not None:
+                self.out_stack.append(result)
 
         elif operation == "IF":
             if len(self.out_stack) > 0:
