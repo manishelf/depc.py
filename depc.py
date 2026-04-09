@@ -254,7 +254,7 @@ class Processor:
 
             elif operation == "CLEAN":
                 self.out_stack = []
-                self.registers = dict()
+                # self.registers = dict()
 
             elif operation == "SHOW":
                 for val in self.out_stack:
