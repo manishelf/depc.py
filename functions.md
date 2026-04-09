@@ -48,6 +48,10 @@
 > XNOR
 
 
+# cleanup 
+> CLEAN
+> CLEAR
+
 # LITERALS
 > ONE
 > ZERO
