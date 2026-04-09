@@ -74,16 +74,20 @@ class PreProcessor:
             raise StopIteration
 
         while True:
+
+            if len(self.file_stack) == 0:
+                raise StopIteration
+
             line = self.file_stack[-1].readline()
 
             if line.startswith("#"):
                 continue
 
             if line == "":
-                if len(self.file_stack) > 0:
-                    self.file_stack.pop()
-                else:
-                    raise StopIteration
+                self.file_stack.pop()
+
+            if line == "\n" or line == "\r" or line.strip() == "":
+                continue
 
             opr = self.parse_line(line)
             self.instr_stack.append(opr)
@@ -95,6 +99,7 @@ class Processor:
     def __init__(self, pre_processor):
         self.out_stack = []
         self.pre_processor = pre_processor
+        self.instr_stack = pre_processor.instr_stack
         self.registers = dict()
         self.sequence_stack = []
         self.sequence_item_counter_stack = []
@@ -146,9 +151,22 @@ class Processor:
             print("Not implemented val", value)
             raise NotImplementedError
 
+    def next_instr(self):
+        try:
+            if self.pc == len(self.instr_stack):
+                opr = self.pre_processor.__next__()
+            else:
+                opr = self.instr_stack[self.pc]
+            return opr
+        except StopIteration:
+            return ("","",())
+
+
     def out(self):
-        for opr in self.pre_processor:
-            (operation, operand, extra) = opr
+
+        while self.pc <= len(self.instr_stack):
+
+            (operation, operand, extra) = self.next_instr()
 
             if operation == "PUSH":
                 self.out_stack.append(self.literal_to_value(operand))
@@ -174,41 +192,41 @@ class Processor:
                         self.registers[alias] = self.value_to_literal(top)
 
             elif operation == "AND":
-                if len(self.out_stack) > 2:
+                if len(self.out_stack) > 1:
                     x = self.out_stack.pop()
                     y = self.out_stack.pop()
                     self.out_stack.append(AND(x, y))
 
             elif operation == "OR":
-                if len(self.out_stack) > 2:
+                if len(self.out_stack) > 1:
                     x = self.out_stack.pop()
                     y = self.out_stack.pop()
                     self.out_stack.append(OR(x, y))
 
             elif operation == "NOT":
-                if len(self.out_stack) > 1:
+                if len(self.out_stack) > 0:
                     self.out_stack[-1] = NOT(self.out_stack[-1])
 
             elif operation == "NAND":
-                if len(self.out_stack) > 2:
+                if len(self.out_stack) > 1:
                     x = self.out_stack.pop()
                     y = self.out_stack.pop()
                     self.out_stack.append(NAND(x, y))
 
             elif operation == "NOR":
-                if len(self.out_stack) > 2:
+                if len(self.out_stack) > 1:
                     x = self.out_stack.pop()
                     y = self.out_stack.pop()
                     self.out_stack.append(NOR(x, y))
 
             elif operation == "XOR":
-                if len(self.out_stack) > 2:
+                if len(self.out_stack) > 1:
                     x = self.out_stack.pop()
                     y = self.out_stack.pop()
                     self.out_stack.append(XOR(x, y))
 
             elif operation == "XNOR":
-                if len(self.out_stack) > 2:
+                if len(self.out_stack) > 1:
                     x = self.out_stack.pop()
                     y = self.out_stack.pop()
                     self.out_stack.append(XNOR(x, y))
@@ -222,8 +240,7 @@ class Processor:
                         self.conditional_skip_depth = 1
                         while self.conditional_skip_depth > 0:
                             self.pc += 1
-                            op = self.pre_processor.instr_stack[self.pc][0]
-
+                            (op, _, _) = self.next_instr()
                             if op == "IF":
                                 self.conditional_skip_depth += 1
                             elif op == "IF_END":
@@ -276,10 +293,11 @@ class Processor:
 
 class Repl:
     def __init__(self):
-        self.last_operation = ()
+        self.last_operation = ("", "", [])
         self.pre_processor = PreProcessor(".")
         #self.pre_processor.file_stack.append(sys.stdin)
         self.pre_processor.file_stack.append(self)
+        self.instr_stack = self.pre_processor.instr_stack;
 
     def __iter__(self):
         return self
@@ -293,15 +311,17 @@ class Repl:
             opr = self.pre_processor.__next__() # this will call self.readline()
             #print(opr[0], opr[1], opr[2])
 
-            operand = opr[0]
-            if operand == "CLEAR":
+            operation = opr[0]
+            if operation == "CLEAR":
                 print(80*80*" ")
-            elif operand == "DUMP":
+            elif operation == "DUMP":
                 pass
-            elif operand == "RESTART":
+            elif operation == "RESTART":
                 self.__init__()
+            elif operation == ".":
+                return self.last_operation
 
-
+            self.last_operation = opr
             return opr
         except KeyboardInterrupt:
             print()

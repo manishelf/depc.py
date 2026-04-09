@@ -49,8 +49,11 @@
 
 
 # cleanup 
-> CLEAN
-> CLEAR
+> CLEAN # clean the stack
+> CLEAR # clear the screen in Repl
+
+# convienience
+> . # repeat last in Repl
 
 # LITERALS
 > ONE

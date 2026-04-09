@@ -2,3 +2,4 @@ push ONE
 push ZERO
 OR
 show
+include examples/fibonacii/fibonacii.txt
