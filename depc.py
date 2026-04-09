@@ -294,7 +294,7 @@ class Repl:
             #print(opr[0], opr[1], opr[2])
 
             operand = opr[0]
-            if operand == "CLS":
+            if operand == "CLEAR":
                 print(80*80*" ")
             elif operand == "DUMP":
                 pass
